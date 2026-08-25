@@ -2,4 +2,3 @@ fastapi
 uvicorn
 duckdb
 pandas
-huggingface_hub
