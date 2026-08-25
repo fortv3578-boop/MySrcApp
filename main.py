@@ -274,7 +274,39 @@ def health():
         "engine": "httpfs",
         "Developer": "@Maybechx"
     }
+@app.get("/TestHuggingFace")
+def test_huggingface():
+    urls = [
+        "https://huggingface.co/datasets/CutehackX/hitek-data-bucket/resolve/main/final_master_shard_0.parquet",
+        "hf://datasets/CutehackX/hitek-data-bucket/final_master_shard_0.parquet"
+    ]
 
+    results = []
+
+    for url in urls:
+        try:
+            result = con.execute(
+                "SELECT COUNT(*) FROM read_parquet(?)",
+                [url]
+            ).fetchone()
+
+            results.append({
+                "url": url,
+                "status": "success",
+                "rows": result[0]
+            })
+
+        except Exception as e:
+            results.append({
+                "url": url,
+                "status": "error",
+                "error": str(e)
+            })
+
+    return {
+        "status": "test_complete",
+        "results": results
+            }
 
 # --------------------------------------------------
 # Parquet lookup
