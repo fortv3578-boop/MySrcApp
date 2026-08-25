@@ -4,20 +4,8 @@ import duckdb
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from huggingface_hub import HfFileSystem
 
 app = FastAPI()
-
-# ============================================================
-# HUGGING FACE STORAGE BUCKET
-# ============================================================
-
-HF_TOKEN = os.getenv("HF_TOKEN")
-
-hf_fs = HfFileSystem(token=HF_TOKEN)
-
-BUCKET = "buckets/CutehackX/hitek-data-bucket"
-
 
 # ============================================================
 # DUCKDB
@@ -30,6 +18,24 @@ con.execute("LOAD httpfs;")
 
 
 # ============================================================
+# HUGGING FACE
+# ============================================================
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+if HF_TOKEN:
+    con.execute(
+        f"CREATE OR REPLACE SECRET hf_secret ("
+        f"TYPE HUGGINGFACE, "
+        f"TOKEN '{HF_TOKEN}'"
+        f")"
+    )
+
+
+BUCKET = "hf://buckets/CutehackX/hitek-data-bucket"
+
+
+# ============================================================
 # LANDING PAGE
 # ============================================================
 
@@ -37,83 +43,99 @@ LANDING_PAGE_HTML = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Hitek Data Gateway - LIVE</title>
+<title>Hitek Data Gateway - LIVE</title>
 
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #050505;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
-        }
+<style>
 
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #050505;
+    color: #00ffcc;
+    font-family: "Courier New", monospace;
+}
 
-        .overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background: rgba(10, 10, 10, 0.85);
-            padding: 50px;
-            border: 1px solid #00ffcc;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
-            backdrop-filter: blur(5px);
-        }
+#canvas-container {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+}
 
-        h1 {
-            margin: 0 0 15px 0;
-            font-size: 3.5em;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            text-shadow: 0 0 15px #00ffcc;
-        }
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 
-        p {
-            font-size: 1.2em;
-            margin: 8px 0;
-            color: #ccc;
-        }
+    text-align: center;
 
-        .highlight {
-            color: #00ffcc;
-            font-weight: bold;
-        }
+    background: rgba(10, 10, 10, 0.85);
 
-        .status-box {
-            margin-top: 30px;
-            font-weight: bold;
-            padding: 15px;
-            border-radius: 8px;
-            background: rgba(0, 255, 204, 0.1);
-            border: 1px solid rgba(0, 255, 204, 0.5);
-            font-size: 1.1em;
-        }
+    padding: 50px;
 
-        .blinking {
-            animation: blinker 1.5s linear infinite;
-            display: inline-block;
-        }
+    border: 1px solid #00ffcc;
+    border-radius: 12px;
 
-        @keyframes blinker {
-            50% {
-                opacity: 0;
-            }
-        }
-    </style>
+    box-shadow:
+        0 0 30px rgba(0, 255, 204, 0.3);
+
+    backdrop-filter: blur(5px);
+}
+
+h1 {
+    margin: 0 0 15px 0;
+
+    font-size: 3.5em;
+
+    text-transform: uppercase;
+
+    letter-spacing: 6px;
+
+    text-shadow:
+        0 0 15px #00ffcc;
+}
+
+p {
+    font-size: 1.2em;
+    margin: 8px 0;
+    color: #ccc;
+}
+
+.highlight {
+    color: #00ffcc;
+    font-weight: bold;
+}
+
+.status-box {
+    margin-top: 30px;
+
+    font-weight: bold;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 255, 204, 0.1);
+
+    border: 1px solid rgba(0, 255, 204, 0.5);
+
+    font-size: 1.1em;
+}
+
+.blinking {
+    animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+</style>
 </head>
 
 <body>
@@ -122,24 +144,34 @@ LANDING_PAGE_HTML = """
 
 <div class="overlay">
 
-    <h1>SYSTEM ONLINE</h1>
+<h1>SYSTEM ONLINE</h1>
 
-    <p>
-        API Gateway is
-        <span class="highlight">Active & Secured</span>
-    </p>
+<p>
+API Gateway is
+<span class="highlight">
+Active & Secured
+</span>
+</p>
 
-    <p>
-        Parquet Cloud Engine:
-        <span class="highlight">Connected</span>
-    </p>
+<p>
+Parquet Cloud Engine:
+<span class="highlight">
+Connected
+</span>
+</p>
 
-    <div class="status-box">
-        <span class="blinking" style="color: #00ffcc;">●</span>
-        HTTP 200 OK - LISTENING FOR QUERIES
-    </div>
+<div class="status-box">
+
+<span class="blinking">
+●
+</span>
+
+HTTP 200 OK - LISTENING FOR QUERIES
 
 </div>
+
+</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -165,7 +197,7 @@ renderer.setSize(
 );
 
 document
-    .getElementById('canvas-container')
+    .getElementById("canvas-container")
     .appendChild(renderer.domElement);
 
 
@@ -189,7 +221,7 @@ for (let i = 0; i < 8000; i++) {
 }
 
 geometry.setAttribute(
-    'position',
+    "position",
     new THREE.Float32BufferAttribute(vertices, 3)
 );
 
@@ -225,7 +257,7 @@ function animate() {
 animate();
 
 
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
 
     camera.aspect =
         window.innerWidth /
@@ -296,11 +328,11 @@ def root_landing_page():
 
 @app.get("/FetchData")
 def fetch_data(
-    Number: str = Query(None)
+    Number: str = Query(default=None)
 ):
 
     # --------------------------------------------------------
-    # Validate number
+    # Validate Number
     # --------------------------------------------------------
 
     if (
@@ -321,18 +353,18 @@ def fetch_data(
 
 
     # --------------------------------------------------------
-    # Determine shard
+    # Select shard
     # --------------------------------------------------------
 
     last_digit = Number[-1]
 
 
-    primary_path = (
+    primary_url = (
         f"{BUCKET}/"
         f"final_master_shard_{last_digit}.parquet"
     )
 
-    alt_path = (
+    alt_url = (
         f"{BUCKET}/"
         f"alt_master_shard_{last_digit}.parquet"
     )
@@ -341,84 +373,98 @@ def fetch_data(
     try:
 
         # ----------------------------------------------------
-        # Check files
+        # Main records
         # ----------------------------------------------------
 
-        if not hf_fs.exists(primary_path):
+        main_query = """
+            SELECT *
+            FROM read_parquet(?)
+            WHERE CAST(mobile AS VARCHAR) = ?
+        """
 
-            return JSONResponse(
-                status_code=500,
-                content={
-                    "status": "error",
-                    "message": (
-                        "Main shard not found: "
-                        f"{primary_path}"
-                    ),
-                    "Developer": "@Maybechx"
-                }
-            )
-
-
-        if not hf_fs.exists(alt_path):
-
-            return JSONResponse(
-                status_code=500,
-                content={
-                    "status": "error",
-                    "message": (
-                        "Alt shard not found: "
-                        f"{alt_path}"
-                    ),
-                    "Developer": "@Maybechx"
-                }
-            )
+        main_results = con.execute(
+            main_query,
+            [
+                primary_url,
+                Number
+            ]
+        ).fetchdf()
 
 
         # ----------------------------------------------------
-        # Query Main shard
+        # Alt records
         # ----------------------------------------------------
 
-        with hf_fs.open(primary_path, "rb") as main_file:
+        alt_query = """
+            SELECT *
+            FROM read_parquet(?)
+            WHERE CAST(alt AS VARCHAR) = ?
+        """
 
-            main_results = con.execute(
-                """
-                SELECT *
-                FROM read_parquet(?)
-                WHERE mobile = ?
-                """,
-                [
-                    main_file,
-                    Number
-                ]
-            ).fetchdf()
-
-
-        # ----------------------------------------------------
-        # Query Alt shard
-        # ----------------------------------------------------
-
-        with hf_fs.open(alt_path, "rb") as alt_file:
-
-            alt_results = con.execute(
-                """
-                SELECT *
-                FROM read_parquet(?)
-                WHERE alt = ?
-                """,
-                [
-                    alt_file,
-                    Number
-                ]
-            ).fetchdf()
+        alt_results = con.execute(
+            alt_query,
+            [
+                alt_url,
+                Number
+            ]
+        ).fetchdf()
 
 
         # ----------------------------------------------------
-        # Convert results
+        # Convert to JSON-compatible records
         # ----------------------------------------------------
 
-        main_records = (
-            main_results
-            .to_dict(orient="records")
+        main_records = main_results.to_dict(
+            orient="records"
         )
 
-       
+        alt_records = alt_results.to_dict(
+            orient="records"
+        )
+
+
+        # ----------------------------------------------------
+        # Not found
+        # ----------------------------------------------------
+
+        if not main_records and not alt_records:
+
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "status": "not_found",
+                    "phone": Number,
+                    "Developer": "@Maybechx"
+                }
+            )
+
+
+        # ----------------------------------------------------
+        # Success
+        # ----------------------------------------------------
+
+        return {
+            "status": "success",
+
+            "Data": {
+                "Main_Records": main_records,
+                "Alt_Records": alt_records
+            },
+
+            "Developer": "@Maybechx"
+        }
+
+
+    except Exception as e:
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": (
+                    "Database processing error: "
+                    + str(e)
+                ),
+                "Developer": "@Maybechx"
+            }
+        )
