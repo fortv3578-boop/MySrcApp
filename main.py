@@ -11,9 +11,16 @@ app = FastAPI()
 
 con = duckdb.connect()
 
+con = duckdb.connect()
+
 con.execute("INSTALL httpfs;")
 con.execute("LOAD httpfs;")
 
+# Test/fix HTTP certificate handling
+con.execute("SET enable_server_cert_verification = false;")
+
+print("DuckDB version:", con.execute("SELECT version()").fetchone()[0])
+print("httpfs loaded successfully")
 # --------------------------------------------------
 # Configuration
 # --------------------------------------------------
