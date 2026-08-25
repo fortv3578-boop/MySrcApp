@@ -124,10 +124,19 @@ def fetch_data(Number: str = Query(None)):
         )
     
     last_digit = Number[-1]
-
-    primary_url = f"https://huggingface.co/datasets/CutehackX/hitek-data-bucket/resolve/main/final_master_shard_{last_digit}.parquet"
-    alt_url = f"https://huggingface.co/datasets/CutehackX/hitek-data-bucket/resolve/main/alt_master_shard_{last_digit}.parquet"
     
+    primary_url = (
+    f"https://huggingface.co/datasets/CutehackX/hitek-data-bucket/"
+    f"resolve/main/final_master_shard_{last_digit}.parquet"
+).strip()
+
+alt_url = (
+    f"https://huggingface.co/datasets/CutehackX/hitek-data-bucket/"
+    f"resolve/main/alt_master_shard_{last_digit}.parquet"
+).strip()
+
+print("PRIMARY URL:", repr(primary_url))
+print("ALT URL:", repr(alt_url))
     
     try:
         query = f"""
