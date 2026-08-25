@@ -1,4 +1,6 @@
 fastapi
 uvicorn
-duckdb>=1.4.0
+duckdb
 pandas
+huggingface_hub
+fsspec
