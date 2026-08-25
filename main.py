@@ -124,9 +124,10 @@ def fetch_data(Number: str = Query(None)):
         )
     
     last_digit = Number[-1]
-    
-    primary_url = f"https://huggingface.co/datasets/CutehackX/hitek-data-bucket/resolve/main/final_master_shard_{last_digit}.parquet"
+
+    primary_url = f"https://huggingface.co/datasets/Kzr0xx/Icmr-and-hitek/blob/main/part1.parquet"
     alt_url = f"https://huggingface.co/datasets/CutehackX/hitek-data-bucket/resolve/main/alt_master_shard_{last_digit}.parquet"
+    
     
     try:
         query = f"""
