@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 duckdb
-pandas
 gradio
 httpx
+pydantic
+pandas
