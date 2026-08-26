@@ -324,7 +324,7 @@ def build_ui():
         .footer { text-align: center; color: #888; margin-top: 20px; }
         """
     ) as demo:
-        gr.Markdown("# 🔍 ICMR + HITEK Search API", elem_classes="main-title")
+        gr.Markdown("# 🔍 ICMR DATA ", elem_classes="main-title")
         gr.Markdown("Search **2.5 billion records** — phone, Aadhaar, name, address & more", elem_classes="subtitle")
 
         with gr.Row():
