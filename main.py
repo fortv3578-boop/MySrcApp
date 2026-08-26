@@ -354,13 +354,25 @@ def build_ui():
             outputs=output,
         )
 
+        gr.Markdown("---")  
+        with gr.Accordion("📡 API Info", open=False):  
+            gr.Markdown("""  
+**Endpoints** (via FastAPI):  
+- `GET /search?q=<number>` — Phone/Aadhaar search  
+- `GET /search?mobile=<number>` — Phone search (alias)  
+- `GET /health` — Health check  
+- `GET /docs` — Swagger UI  
+  
+**Source:** [HF Dataset](https://huggingface.co/datasets/Kzr0xx/icrm-hitek-full-db-mixed)  
+            """)  
+  
         
 
         # Developer credit footer
         gr.Markdown(
             "---\n"
             "<div class='footer'>"
-            "👨‍💻 **Developer:**  |  📢 **Channel:** 
+            "👨‍💻 **Developer:**  |  📢 **Channel:** "
             "</div>",
             elem_classes="footer"
         )
