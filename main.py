@@ -362,6 +362,7 @@ def build_ui():
 - `GET /search?mobile=<number>` — Phone search (alias)
 - `GET /health` — Health check
 - `GET /docs` — Swagger UI
+- `GET /api` — API information
 
 **Source:** [HF Dataset](https://huggingface.co/datasets/Kzr0xx/icrm-hitek-full-db-mixed)
             """)
